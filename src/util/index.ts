@@ -1,4 +1,4 @@
-export * as udate from "./date";
-export * as ustring from "./string";
-export * as urx from "./rx";
-export * as ulog from "./log";
+export * as date from "./date";
+export * as string from "./string";
+export * as rx from "./rx";
+export * as log from "./log";
