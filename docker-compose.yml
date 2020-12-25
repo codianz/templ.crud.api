@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  mssql:
+    image: microsoft/mssql-server-linux:2017-latest
+    container_name: crud-mssql
+    volumes:
+      - mssql-volume:/var/opt/mssql/
+    ports:
+      - 55001:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=P@ssw0rd
+    restart: unless-stopped
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: crud-azurite
+    volumes:
+      - azurite-volume:/data
+    ports:
+      - 55002:10000
+      - 55003:10001
+    restart: unless-stopped
+  azuritev2:
+    image: arafato/azurite:latest
+    container_name: crud-azuritev2
+    volumes:
+      - azuritev2-volume:/opt/azurite/folder
+    ports:
+      - 55004:10002
+    restart: unless-stopped
+volumes:
+  mssql-volume:
+  azurite-volume:
+  azuritev2-volume:
+
