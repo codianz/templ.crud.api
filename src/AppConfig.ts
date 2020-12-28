@@ -10,9 +10,9 @@ export function getAppConfig() {
       port: parseInt(process.env["_DB_PORT"] ?? "55001"),
       username: process.env["_DB_USERNAME"] ?? "sa",
       password: process.env["_DB_PASSWORD"] ?? "P@ssw0rd",
-      database: process.env["_DB_DATABSE"] ?? "isou",
+      database: process.env["_DB_DATABSE"] ?? "crud",
       encrypt: parseInt(process.env["_DB_ENCRYPT"] ?? "0") ? true : false,
-    } as db.ConnectionInfo,
+    } as db.connection_info_t,
     storage: {
       connectionString:
         "AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;DefaultEndpointsProtocol=http;BlobEndpoint=http://127.0.0.1:55002/devstoreaccount1;QueueEndpoint=http://127.0.0.1:55003/devstoreaccount1;TableEndpoint=http://127.0.0.1:55004/devstoreaccount1;",

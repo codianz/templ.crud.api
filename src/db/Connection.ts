@@ -1,9 +1,9 @@
 import { ConnectionOptions, createConnection, Connection } from "typeorm";
 import { of, from, BehaviorSubject, NEVER } from "rxjs";
 import { map, mergeMap, take } from "rxjs/operators";
-import { User, Session } from "./models";
+import * as models from "./models";
 
-export type ConnectionInfo = {
+export type connection_info_t = {
   host: string;
   port: number;
   username: string;
@@ -12,7 +12,7 @@ export type ConnectionInfo = {
   encrypt: boolean;
 };
 
-function buildDbConfig(dbConnect: ConnectionInfo): ConnectionOptions {
+function buildDbConfig(dbConnect: connection_info_t): ConnectionOptions {
   return {
     type: "mssql",
     host: dbConnect.host,
@@ -20,7 +20,7 @@ function buildDbConfig(dbConnect: ConnectionInfo): ConnectionOptions {
     username: dbConnect.username,
     password: dbConnect.password,
     database: dbConnect.database,
-    entities: [User, Session],
+    entities: [models.User, models.Session],
     extra: {
       options: {
         enableArithAbort: true,
@@ -33,42 +33,37 @@ function buildDbConfig(dbConnect: ConnectionInfo): ConnectionOptions {
   };
 }
 
-const defaultConnectInfo = new BehaviorSubject<ConnectionInfo | undefined>(
+const defaultConnectInfo = new BehaviorSubject<connection_info_t | undefined>(
   undefined
 );
 let defaultConnection: Connection | undefined;
 
-export function setDefaultConnectInfo(connectInfo: ConnectionInfo) {
+export function setDefaultConnectInfo(connectInfo: connection_info_t) {
   defaultConnectInfo.next(connectInfo);
 }
 
+// prettier-ignore
 export function dbDefaultConnection() {
   if (defaultConnection) {
     return of(defaultConnection);
   } else {
     return defaultConnectInfo
-      .asObservable()
-      .pipe(
-        mergeMap((ci) => {
-          if (!ci) return NEVER;
-          return of(ci);
-        })
-      )
-      .pipe(take(1))
-      .pipe(
-        mergeMap((ci) => {
-          return dbConnection(ci);
-        })
-      )
-      .pipe(
-        map((conn) => {
-          defaultConnection = conn;
-          return conn;
-        })
-      );
+    .asObservable()
+    .pipe(mergeMap((ci) => {
+      if (!ci) return NEVER;
+      return of(ci);
+    }))
+    .pipe(take(1))
+    .pipe(mergeMap((ci) => {
+      return dbConnection(ci);
+    }))
+    .pipe(map((conn) => {
+        defaultConnection = conn;
+        return conn;
+    }));
   }
 }
 
-export function dbConnection(dbConnect: ConnectionInfo) {
+export function dbConnection(dbConnect: connection_info_t) {
   return from(createConnection(buildDbConfig(dbConnect)));
 }

@@ -81,6 +81,7 @@ export class InflowRestriction {
     this.emitStatus(memo);
   }
 
+  // prettier-ignore
   public enter<T>(memo: string, func: () => Observable<T>): Observable<T> {
     const id = ++this.m_runnerId;
     const _memo = `(${id}) ${memo}`;
@@ -88,27 +89,21 @@ export class InflowRestriction {
     return readySetGo(() => {
       this.checkIn(_memo, id);
     }, this.m_caller)
-      .pipe(observeOn(asyncScheduler))
-      .pipe(
-        mergeMap((x) => {
-          if (x !== id) return NEVER;
-          return func();
-        })
-      )
-      .pipe(take(1))
-      .pipe(
-        catchError((err) => {
-          this.m_log.error(`InflowRestriction error  ${_memo}: ${err}`);
-          this.checkOut(_memo, id);
-          return throwError(err);
-        })
-      )
-      .pipe(
-        map((x) => {
-          this.checkOut(_memo, id);
-          this.m_log.info(`InflowRestriction finish ${_memo}`);
-          return x;
-        })
-      );
+    .pipe(observeOn(asyncScheduler))
+    .pipe(mergeMap((x) => {
+      if (x !== id) return NEVER;
+      return func();
+    }))
+    .pipe(take(1))
+    .pipe(catchError((err) => {
+      this.m_log.error(`InflowRestriction error  ${_memo}: ${err}`);
+      this.checkOut(_memo, id);
+      return throwError(err);
+    }))
+    .pipe(map((x) => {
+      this.checkOut(_memo, id);
+      this.m_log.info(`InflowRestriction finish ${_memo}`);
+      return x;
+    }));
   }
 }
